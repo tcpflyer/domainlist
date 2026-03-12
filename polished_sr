@@ -13,7 +13,8 @@ prefer-ipv6 = false
 # --- DNS ---
 # Explicit CN public DNS instead of relying on system DNS
 # 119.29.29.29 = DNSPod (Tencent), 223.5.5.5 = Alibaba
-dns-server = 119.29.29.29, 223.5.5.5
+dns-server = 119.29.29.29, 223.5.5.5, 1.1.1.1, 8.8.8.8
+doh-server = https://cloudflare-dns.com/dns-query, https://dns.google/dns-query
 dns-fallback-system = false
 dns-direct-system = false
 dns-direct-fallback-proxy = true
