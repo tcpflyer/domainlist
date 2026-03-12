@@ -1,0 +1,132 @@
+# ============================================================
+#  Shadowrocket Configuration
+#  Strategy: CN traffic → DIRECT | YouTube → YouTube-Node | Everything else → PROXY
+#  Last updated: 2026-03
+# ============================================================
+
+[General]
+# --- Core ---
+bypass-system = true
+ipv6 = false
+prefer-ipv6 = false
+
+# --- DNS ---
+# Explicit CN public DNS instead of relying on system DNS
+# 119.29.29.29 = DNSPod (Tencent), 223.5.5.5 = Alibaba
+dns-server = 119.29.29.29, 223.5.5.5
+dns-fallback-system = false
+dns-direct-system = false
+dns-direct-fallback-proxy = true
+
+# --- Skip proxy for private/LAN ranges & Apple captive portal ---
+skip-proxy = 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, localhost, *.local, captive.apple.com
+
+# --- TUN excluded routes (all RFC-reserved ranges) ---
+tun-excluded-routes = 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.0.0.0/24, 192.0.2.0/24, 192.88.99.0/24, 192.168.0.0/16, 198.51.100.0/24, 203.0.113.0/24, 224.0.0.0/4, 255.255.255.255/32, 239.255.255.250/32
+
+# --- Misc ---
+icmp-auto-reply = true
+always-reject-url-rewrite = false
+private-ip-answer = true
+
+
+# ============================================================
+# PROXY GROUP
+# Replace "YouTube-Node" with your actual node name exactly
+# as it appears in Shadowrocket under your subscription list.
+# ============================================================
+[Proxy Group]
+YOUTUBE = select, YouTube-Node
+
+
+[Rule]
+# ============================================================
+# BLOCK FIRST — reject ads before any DIRECT rules can match
+# ============================================================
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list,REJECT
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list,REJECT
+
+# ============================================================
+# YOUTUBE — all YouTube & Google Video CDN traffic
+# Covers: main site, studio, kids, music, shorts,
+#         video CDN (googlevideo), thumbnails/assets (ytimg),
+#         YouTube TV, and yt.be / youtu.be short links
+# ============================================================
+DOMAIN-SUFFIX,youtube.com,YOUTUBE
+DOMAIN-SUFFIX,youtu.be,YOUTUBE
+DOMAIN-SUFFIX,yt.be,YOUTUBE
+DOMAIN-SUFFIX,ytimg.com,YOUTUBE
+DOMAIN-SUFFIX,ggpht.com,YOUTUBE
+DOMAIN-SUFFIX,googlevideo.com,YOUTUBE
+DOMAIN-SUFFIX,youtubei.googleapis.com,YOUTUBE
+DOMAIN-SUFFIX,youtubekids.com,YOUTUBE
+DOMAIN-SUFFIX,youtubemusic.com,YOUTUBE
+DOMAIN-SUFFIX,youtubegaming.com,YOUTUBE
+DOMAIN-KEYWORD,googlevideo,YOUTUBE
+
+# ============================================================
+# LOCAL / LAN — always direct
+# ============================================================
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list,DIRECT
+
+# ============================================================
+# UNBANNED — domains wrongly blocked elsewhere, force direct
+# ============================================================
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list,DIRECT
+
+# ============================================================
+# APPLE — route direct for best performance inside CN
+# NOTE: if you are outside mainland China, change to PROXY
+# ============================================================
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list,DIRECT
+
+# ============================================================
+# CN DOMAINS — custom list + ACL4SSR lists
+# ============================================================
+RULE-SET,https://raw.githubusercontent.com/tcpflyer/domainlist/main/cndomain.list,DIRECT
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list,DIRECT
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list,DIRECT
+
+# ============================================================
+# CN IPs — company ranges + full IP list
+# ============================================================
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list,DIRECT
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list,DIRECT
+
+# ============================================================
+# GEOIP fallback for any remaining CN IPs not caught above
+# no-resolve: skip DNS lookup, only match already-resolved IPs
+# ============================================================
+GEOIP,CN,DIRECT,no-resolve
+
+# ============================================================
+# FINAL — everything else goes through proxy
+# ============================================================
+FINAL,PROXY
+
+
+[Host]
+localhost = 127.0.0.1
+
+
+[URL Rewrite]
+# Redirect g.cn / google.cn → google.com (HTTP only)
+# HTTPS rewrites require MITM — see [MITM] section below
+^https?://(www\.)?g\.cn https://www.google.com 302
+^https?://(www\.)?google\.cn https://www.google.com 302
+
+
+# ============================================================
+# MITM — required for HTTPS URL rewrites to take effect
+# Steps to activate:
+#   1. In Shadowrocket → Settings → HTTPS Decryption → Generate a new CA
+#   2. Install & trust the CA certificate in iOS Settings →
+#      General → VPN & Device Management → trust the cert
+#   3. Uncomment the [MITM] block below
+# ============================================================
+
+# [MITM]
+# enable = true
+# ca-passphrase = shadowrocket
+# ca-p12 = (paste your base64 CA here after generating in-app)
+# hostname = g.cn, google.cn, www.g.cn, www.google.cn
