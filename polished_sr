@@ -39,6 +39,8 @@ private-ip-answer = true
 [Proxy Group]
 YOUTUBE = select, YouTube-Node
 DISNEY_HULU = select, DisneyHulu-Node-1
+NETFLIX = select, Netflix-Node
+TELEGRAM = select, Telegram-Node
 
 [Rule]
 # ============================================================
@@ -48,40 +50,13 @@ RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.li
 RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list,REJECT
 
 # ============================================================
-# YOUTUBE — all YouTube & Google Video CDN traffic
-# Covers: main site, studio, kids, music, shorts,
-#         video CDN (googlevideo), thumbnails/assets (ytimg),
-#         YouTube TV, and yt.be / youtu.be short links
+# STREAMING RULESETS — YouTube / Disney+ / Hulu
 # ============================================================
-DOMAIN-SUFFIX,youtube.com,YOUTUBE
-DOMAIN-SUFFIX,youtu.be,YOUTUBE
-DOMAIN-SUFFIX,yt.be,YOUTUBE
-DOMAIN-SUFFIX,ytimg.com,YOUTUBE
-DOMAIN-SUFFIX,ggpht.com,YOUTUBE
-DOMAIN-SUFFIX,googlevideo.com,YOUTUBE
-DOMAIN-SUFFIX,youtubei.googleapis.com,YOUTUBE
-DOMAIN-SUFFIX,youtubekids.com,YOUTUBE
-DOMAIN-KEYWORD,googlevideo,YOUTUBE
-
-# ============================================================
-# DISNEY+ AND HULU — Direct Disney and Hulu traffic through DISNEY_HULU proxy group
-# ============================================================
-DOMAIN-SUFFIX,disneyplus.com,DISNEY_HULU
-DOMAIN-SUFFIX,disney-plus.net,DISNEY_HULU
-DOMAIN-SUFFIX,disneynow.com,DISNEY_HULU
-DOMAIN-SUFFIX,bamgrid.com,DISNEY_HULU
-DOMAIN-SUFFIX,cdn.registerdisney.go.com,DISNEY_HULU
-DOMAIN-SUFFIX,dssott.com,DISNEY_HULU
-DOMAIN-SUFFIX,disneystreaming.com,DISNEY_HULU
-DOMAIN-SUFFIX,edge.bamgrid.com,DISNEY_HULU
-DOMAIN-SUFFIX,cdn.media.bamgrid.com,DISNEY_HULU
-
-DOMAIN-SUFFIX,hulu.com,DISNEY_HULU
-DOMAIN-SUFFIX,huluim.com,DISNEY_HULU
-DOMAIN-SUFFIX,hulustream.com,DISNEY_HULU
-DOMAIN-SUFFIX,huluad.com,DISNEY_HULU
-DOMAIN-SUFFIX,hulutheater.com,DISNEY_HULU
-DOMAIN-SUFFIX,hulu.statestats.com,DISNEY_HULU
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/YouTube.list,YOUTUBE
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/DisneyPlus.list,DISNEY_HULU
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Hulu.list,DISNEY_HULU
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Netflix.list,NETFLIX
+RULE-SET,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Telegram.list,TELEGRAM
 
 # ============================================================
 # LOCAL / LAN — always direct
